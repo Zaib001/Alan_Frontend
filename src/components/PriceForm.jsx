@@ -75,6 +75,7 @@ const PriceForm = ({ setQuote, setLoading, onFormSubmit }) => {
     color: "",
     sides: [],
     length: "",
+    customLength: "", // new state for custom length input
     height: "",
     roofType: "",
     roofPitch: "",
@@ -100,7 +101,7 @@ const PriceForm = ({ setQuote, setLoading, onFormSubmit }) => {
         {
           value: "Multi",
           colors: ["#FF0000", "#0000FF", "#008000", "#FFFF00", "#FFA500"],
-        }, // added orange instead of purple
+        },
       ],
     },
     {
@@ -129,7 +130,7 @@ const PriceForm = ({ setQuote, setLoading, onFormSubmit }) => {
         "150ft",
         "175ft",
         "200ft",
-        "Custom",
+        "Custom", // Custom option added here
       ],
     },
     {
@@ -226,7 +227,7 @@ const PriceForm = ({ setQuote, setLoading, onFormSubmit }) => {
         <label className="block text-lg font-medium">{currentStep.label}</label>
 
         {currentStep.field === "color" ? (
-          <div className="grid grid-cols-3 gap-4 mt-4 ">
+          <div className="grid grid-cols-3 gap-4 mt-4">
             {currentStep.options.map((option, index) => (
               <motion.div
                 key={index}
@@ -279,6 +280,29 @@ const PriceForm = ({ setQuote, setLoading, onFormSubmit }) => {
               </motion.div>
             ))}
           </div>
+        ) : currentStep.field === "length" ? (
+          <div className="grid grid-cols-3 gap-4 mt-4">
+            {currentStep.options.map((option, index) => (
+              <motion.div
+                key={index}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className={`p-4 border rounded-lg cursor-pointer ${
+                  formData[currentStep.field] === option
+                    ? "border-blue-500"
+                    : "border-gray-300"
+                }`}
+                onClick={() => {
+                  if (option === "Custom") {
+                    handleFieldChange("customLength", ""); // Clear custom length when switching to custom
+                  }
+                  handleFieldChange(currentStep.field, option);
+                }}
+              >
+                <p className="text-center">{option}</p>
+              </motion.div>
+            ))}
+          </div>
         ) : currentStep.field === "height" ? (
           <div className="grid grid-cols-3 gap-4 mt-4">
             {currentStep.options.map((option, index) => (
@@ -301,7 +325,7 @@ const PriceForm = ({ setQuote, setLoading, onFormSubmit }) => {
             ))}
           </div>
         ) : (
-          <div className="flex flex-wrap gap-4 mt-4">
+          <div className="grid grid-cols-2 gap-4 mt-4">
             {currentStep.options.map((option, index) => (
               <motion.div
                 key={index}
@@ -319,15 +343,34 @@ const PriceForm = ({ setQuote, setLoading, onFormSubmit }) => {
             ))}
           </div>
         )}
+
+        {/* Custom Length Input - Only show on length step */}
+        {currentStep.field === "length" && formData.length === "Custom" && (
+          <div className="mt-4">
+            <label htmlFor="customLength" className="block font-medium">
+              Enter Custom Length:
+            </label>
+            <input
+              type="number"
+              id="customLength"
+              className="mt-2 p-2 border rounded w-full"
+              placeholder="Enter length in ft"
+              value={formData.customLength}
+              onChange={(e) =>
+                handleFieldChange("customLength", e.target.value)
+              }
+            />
+          </div>
+        )}
       </div>
 
-      {error && <p className="text-red-500 text-sm">{error}</p>}
+      {error && <p className="text-red-500">{error}</p>}
 
-      <div className="mt-6 flex justify-between">
+      <div className="flex justify-between mt-6">
         {step > 0 && (
           <button
             onClick={handleBack}
-            className="bg-gray-300 px-4 py-2 rounded-lg"
+            className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
           >
             Back
           </button>
@@ -335,14 +378,14 @@ const PriceForm = ({ setQuote, setLoading, onFormSubmit }) => {
         {step < steps.length - 1 ? (
           <button
             onClick={handleNext}
-            className="bg-blue-500 text-white px-4 py-2 rounded-lg"
+            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
           >
             Next
           </button>
         ) : (
           <button
             onClick={handleSubmit}
-            className="bg-green-500 text-white px-4 py-2 rounded-lg"
+            className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
           >
             Submit
           </button>
